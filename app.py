@@ -51,12 +51,18 @@ elif option == '연령':
         fig1_age.update_traces(textposition='inside', textinfo='percent+label')
         st.plotly_chart(fig1_age, use_container_width=True)
 
-
     with col2:
         st.write("연령대 별 판매량")
         df_sum_quantity = df.groupby(['ProductID', 'AgeCategory']).sum(numeric_only=True).reset_index()
         fig2_age = px.bar(df_sum_quantity, x='ProductID', y='Quantity', color='AgeCategory', barmode='group', color_continuous_scale='Agsunset') # 제품 별 제품
         st.plotly_chart(fig2_age, use_container_width=True)
+
+    st.write("각 연령별 월별 전체 매출")
+    fig = px.bar(df, x='Month', y='TotalSales', color='AgeCategory',
+                labels={'TotalSales': 'Sales'},
+                color_continuous_scale='Agsunset',
+                )
+    st.plotly_chart(fig, use_container_width=True)
     
 else:
     col1, col2, = st.columns(2)
@@ -76,13 +82,12 @@ else:
     fig = px.bar(df, x='Month', y='TotalSales', color='ProductID',
                 title='A, B, C Sales by Month',
                 labels={'TotalSales': 'Sales'},
-                color_discrete_map={'A': 'lightblue', 'B': 'orange', 'C': 'green'},
                 )
     st.plotly_chart(fig, use_container_width=True)
 
-st.header("2. LTU")
-
-st.header("3. Regression")
-
-st.header("4. sheet")
+st.header("2. sheet")
 st.dataframe(df_og)
+
+st.header("3. LTV")
+
+st.header("4. Regression")
