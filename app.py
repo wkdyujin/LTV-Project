@@ -67,6 +67,16 @@ else:
         fig2_product = px.bar(df, x='ProductID', y='Quantity', color='ProductID', barmode='group') # 제품 별 제품
         st.plotly_chart(fig2_product, use_container_width=True)
     
+    df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
+    df['Month'] = df['InvoiceDate'].dt.month_name()
+    df['TotalSales'] = df['Quantity'] * df['UnitPrice']
+    # Create a stacked bar graph using plotly.express
+    fig = px.bar(df, x='Month', y='TotalSales', color='ProductID',
+                title='A, B, C Sales by Month',
+                labels={'TotalSales': 'Sales'},
+                color_discrete_map={'A': 'lightblue', 'B': 'orange', 'C': 'green'},
+                )
+    st.plotly_chart(fig, use_container_width=True)
 
 st.header("2. LTU")
 
