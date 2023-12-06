@@ -90,13 +90,22 @@ else:
                 labels=label_list, category_orders={ "Month": months })
     st.plotly_chart(fig, use_container_width=True)
 
-st.header("2. sheet")
+st.header("2. 입력 데이터")
+st.text("아래는 입력 데이터(Woori_Input.csv)입니다. 1000 X 8 크기로 구성되어 있습니다.")
 st.dataframe(df_og)
 
-st.header("3. LTV")
+st.header("3. 고객 생애 가치")
+vvvip_id = df_output[df_output['monetary_value'] == max(df_output['monetary_value'])].index[0]
+vvvip = df_output[df_output.index==vvvip_id]
+st.text(f"""분석에 따르면, {vvvip_id}가 VVVIP입니다.
+- 평균 구매 금액은 {round(vvvip['monetary_value'].values[0], 2)}입니다.
+- {int(vvvip['T'].values[0])}일 동안 {int(vvvip['frequency'].values[0])}번 구매했습니다.
+- 최근 구매는 {int(vvvip['T'].values[0]- vvvip['recency'].values[0])}일 전에 구매했습니다.
+- 예상 구매 횟수는 {int(round(vvvip['predicted_puchases'].values[0], 0))}번 입니다.
+- 예상 평균 구매 금액은 {round(vvvip['predicted_monetary_value'].values[0], 4)}입니다.""")
 st.dataframe(df_output)
 
-st.header("4. TimeSeries")
+st.header("4. 시계열")
 
 # 데이터프레임 생성
 def date_groups(input_data: pd.DataFrame, product: str, unitprice: int):
