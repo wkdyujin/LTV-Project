@@ -117,11 +117,7 @@ else:
                 )
     st.plotly_chart(fig, use_container_width=True)
 
-st.header("2. sheet")
-input_excel_data = BytesIO()      
-df_og.to_excel(input_excel_data)
-st.download_button("엑셀 다운로드", 
-        input_excel_data, file_name='input.xlsx')
+st.header("2. 입력데이터")
 st.dataframe(df_og)
 
 st.header("3. 고객 생애 가치")
@@ -145,7 +141,7 @@ if (ans_customer_id != ''):
         - 예상 평균 구매 금액은 {round(cur_customer['predicted_monetary_value'].values[0], 2)}입니다.""")
 st.dataframe(df_output)
 
-st.header("4. TimeSeries")
+st.header("4. 시계열")
 # st.write(df)
 
 # 1) 제품별 데이터프레임 생성
