@@ -4,12 +4,12 @@ import pandas as pd
 try :
     df_Input = pd.read_csv('.\data\sample2.csv')
 except :
-    df_Input = pd.read_csv('\data\sample2.csv')
+    df_Input = pd.read_csv('data\sample2.csv')
 
 try :
     df_Output = pd.read_csv('.\data\Woori_Output.csv')
 except :
-    df_Output = pd.read_csv('\data\Woori_Output.csv')
+    df_Output = pd.read_csv('data\Woori_Output.csv')
 
 
 st.title("우리FISA AI엔지니어링 프로젝트-1")
