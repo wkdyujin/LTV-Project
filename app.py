@@ -4,7 +4,7 @@ import plotly.figure_factory as ff
 import plotly.express as px
 
 
-df = pd.read_csv('./data/sample2.csv')
+df = pd.read_csv('./data/sample2.csv', index_col = 0)
 df_og = df.copy()
 
 def age_categorize(age):
