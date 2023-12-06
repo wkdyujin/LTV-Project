@@ -30,13 +30,16 @@ label_list = { "CustomerSex": "성별",  "Month": "월", "TotalSales": "매출�
 months_korean = ["1월", "2월", "3월", "4월", "5월", "6월",
                   "7월", "8월", "9월", "10월", "11월", "12월"]
 
-# Create a translation dictionary
 month_translation = dict(zip(months, months_korean))
 
-# Map English month names to Korean month names in the 'Month' column
 df['Month'] = df['Month'].map(month_translation)
+
 months = ["1월", "2월", "3월", "4월", "5월", "6월",
                   "7월", "8월", "9월", "10월", "11월", "12월"]
+CustomerSex = ['Male', 'Female']
+CustomerSex_korean = ['남성', '여성']
+CustomerSex_translation = dict(zip(CustomerSex, CustomerSex_korean))
+df['CustomerSex'] = df['CustomerSex'].map(CustomerSex_translation)
 
 st.header("1. EDA")
 option = st.selectbox(
