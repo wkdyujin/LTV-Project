@@ -44,16 +44,14 @@ CustomerSex_translation = dict(zip(CustomerSex, CustomerSex_korean))
 df['CustomerSex'] = df['CustomerSex'].map(CustomerSex_translation)
 
 st.header("1. EDA")
-option = st.selectbox(
-    'EDA에 활용될 Key를 선택해 주세요.',
-    ('성별', '연령', '제품'))
+option = st.selectbox("어떤 카테고리 별로 확인할 지 선택하세요.", ["제품", "연령", "성별"], key="eda")
 
 if option == '성별':
     col1, col2, = st.columns(2)
     with col1:
         st.subheader("1-1. 각 성별의 비율")
         st.markdown("전체 기간 동안 각 성별이 매출액에서 차지하는 비율을 나타냅니다.")
-        fig1_sex = px.pie(df, values='UnitPrice', names='CustomerSex')
+        fig1_sex = px.pie(df, values='UnitPrice', names='CustomerSex', labels=label_list)
         fig1_sex.update_traces(textposition='inside', textinfo='percent+label')
         st.plotly_chart(fig1_sex, use_container_width=True)
 
@@ -84,13 +82,13 @@ elif option == '연령':
         st.subheader("1-2. 각 연령대의 제품별 판매량")
         st.markdown("전체 기간 동안 각 연령대가 구매한 제품 별 수량을 나타냅니다.")
         df_sum_quantity = df.groupby(['ProductID', 'AgeCategory']).sum(numeric_only=True).reset_index()
-        fig2_age = px.bar(df_sum_quantity, x='ProductID', y='Quantity', color='AgeCategory', barmode='group', color_continuous_scale='Agsunset') # 제품 별 제품
+        fig2_age = px.bar(df_sum_quantity, x='ProductID', y='Quantity', color='AgeCategory', barmode='group', color_continuous_scale='Agsunset', labels=label_list) # 제품 별 제품
         st.plotly_chart(fig2_age, use_container_width=True)
 
     st.subheader("1-3. 각 연령의 월 매출")
     st.markdown("각 연령의 월 별 매출을 나타냅니다.")
     fig = px.bar(df, x='Month', y='TotalSales', color='AgeCategory',
-                labels={'TotalSales': 'Sales'},
+                labels=label_list,
                 color_continuous_scale='Agsunset',
                 )
     st.plotly_chart(fig, use_container_width=True)
@@ -112,9 +110,7 @@ else:
     
     st.subheader("1-3. 각 제품의 월 매출")
     st.markdown("각 제품의 월 별 매출을 나타냅니다.")
-    fig = px.bar(df, x='Month', y='TotalSales', color='ProductID',
-                labels={'TotalSales': 'Sales'}
-                )
+    fig = px.bar(df, x='Month', y='TotalSales', color='ProductID', labels=label_list)
     st.plotly_chart(fig, use_container_width=True)
 
 st.header("2. 입력데이터")
