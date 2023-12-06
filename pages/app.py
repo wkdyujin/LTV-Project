@@ -93,17 +93,17 @@ else:
     st.plotly_chart(fig, use_container_width=True)
 
 st.header("2. sheet")
-input_excel_data = BytesIO()      
-df_og.to_excel(input_excel_data)
-st.download_button("엑셀 다운로드", 
-        input_excel_data, file_name='input.xlsx')
+# input_excel_data = BytesIO()      
+# df_og.to_excel(input_excel_data)
+# st.download_button("엑셀 다운로드", 
+#         input_excel_data, file_name='input.xlsx')
 st.dataframe(df_og)
 
 st.header("3. LTV")
-output_excel_data = BytesIO()
-df_output.to_excel(output_excel_data)
-st.download_button("엑셀 다운로드", 
-        output_excel_data, file_name='output.xlsx')
+# output_excel_data = BytesIO()
+# df_output.to_excel(output_excel_data)
+# st.download_button("엑셀 다운로드", 
+#         output_excel_data, file_name='output.xlsx')
 st.dataframe(df_output)
 
 st.header("4. TimeSeries")
