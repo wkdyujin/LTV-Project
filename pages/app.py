@@ -22,8 +22,21 @@ df['AgeCategory'] = df['CustomerAge'].apply(age_categorize).astype('category') #
 df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
 df['Month'] = df['InvoiceDate'].dt.month_name()
 df['TotalSales'] = df['Quantity'] * df['UnitPrice']
-months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-label_list = { "CustomerSex": "성별",  "Month": "월", "TotalSales": "매출액", "ProductID": "제품명", "Quantity": "판매량", "AgeCategory": "연령대"}
+months = ["January", "February", "March", "April", "May", "June",\
+           "July", "August", "September", "October", "November", "December"]
+label_list = { "CustomerSex": "성별",  "Month": "월", "TotalSales": "매출액", \
+              "ProductID": "제품명", "Quantity": "판매량", "AgeCategory": "연령대"}
+
+months_korean = ["1월", "2월", "3월", "4월", "5월", "6월",
+                  "7월", "8월", "9월", "10월", "11월", "12월"]
+
+# Create a translation dictionary
+month_translation = dict(zip(months, months_korean))
+
+# Map English month names to Korean month names in the 'Month' column
+df['Month'] = df['Month'].map(month_translation)
+months = ["1월", "2월", "3월", "4월", "5월", "6월",
+                  "7월", "8월", "9월", "10월", "11월", "12월"]
 
 st.header("1. EDA")
 option = st.selectbox(
@@ -36,6 +49,7 @@ if option == '성별':
         st.write("전체 매출 중 각 성별의 비율")
         fig1_sex = px.pie(df, values='UnitPrice', names='CustomerSex')
         fig1_sex.update_traces(textposition='inside', textinfo='percent+label')
+
         st.plotly_chart(fig1_sex, use_container_width=True)
 
     with col2:
