@@ -1,8 +1,16 @@
 import streamlit as st
 import pandas as pd
 
-df_Input = pd.read_csv('.\data\sample2.csv')
-df_Output = pd.read_csv('.\data\Woori_Output.csv')
+try :
+    df_Input = pd.read_csv('.\data\sample2.csv')
+except :
+    df_Input = pd.read_csv('\data\sample2.csv')
+
+try :
+    df_Output = pd.read_csv('.\data\Woori_Output.csv')
+except :
+    df_Output = pd.read_csv('\data\Woori_Output.csv')
+
 
 st.title("우리FISA AI엔지니어링 프로젝트-1")
 version_info = "<p style='text-align: right;'>2023-12-06, v1.0.0</p>"
