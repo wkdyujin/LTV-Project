@@ -4,3 +4,4 @@ plotly
 XlsxWriter
 beautifulsoup4
 openpyxl
+matplotlib
