@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from statsmodels.tsa.api import VAR
 from statsmodels.tools.eval_measures import rmse
 
+st.set_page_config(layout="wide")
+
 df = pd.read_csv('./data/sample2.csv', index_col = 0)
 df_og = df.copy()
 df_output = pd.read_csv('./data/Woori_Output.csv', index_col = 0)
@@ -47,19 +49,22 @@ option = st.selectbox("어떤 카테고리 별로 확인할 지 선택하세요.
 if option == '성별':
     col1, col2, = st.columns(2)
     with col1:
-        st.write("전체 매출 중 각 성별의 비율")
+        st.subheader("(1) 각 성별의 비율")
+        st.text("전체 기간 동안 각 성별이 매출액에서 차지하는 비율을 나타냅니다.")
         fig1_sex = px.pie(df, values='UnitPrice', names='CustomerSex')
         fig1_sex.update_traces(textposition='inside', textinfo='percent+label')
 
         st.plotly_chart(fig1_sex, use_container_width=True)
 
     with col2:
-        st.write("각 성별의 제품 별 구매량")
+        st.subheader("(2) 각 성별의 제품별 구매량")
+        st.text("전체 기간 동안 각 성별이 구매한 제품 별 수량을 나타냅니다.")
         fig2_sex = px.bar(df, x='ProductID', y='Quantity', color='CustomerSex', barmode='group',
                           labels=label_list, category_orders={ "ProductID": ["A", "B", "C"] },)
         st.plotly_chart(fig2_sex, use_container_width=True)
 
-    st.write("각 성별의 월 매출")
+    st.subheader("(3) 각 성별의 월 매출")
+    st.text("각 성별의 월 별 매출을 나타냅니다.")
     fig3_sex = px.bar(df, x='Month', y='TotalSales', color='CustomerSex', barmode='group',
                           labels=label_list, category_orders={ "Month": months },)
     st.plotly_chart(fig3_sex, use_container_width=True)
@@ -69,18 +74,21 @@ elif option == '연령':
     col1, col2, = st.columns(2)
     df = df.sort_values(by='AgeCategory')
     with col1:
-        st.write("전체 매출 중 각 연령대의 비율")
+        st.subheader("(1) 각 연령대의 비율")
+        st.text("전체 기간 동안 각 연령대가 매출액에서 차지하는 비율을 나타냅니다.")
         fig1_age = px.pie(df, values='UnitPrice', names='AgeCategory') # 나이 별 매출
         fig1_age.update_traces(textposition='inside', textinfo='percent+label')
         st.plotly_chart(fig1_age, use_container_width=True)
 
     with col2:
-        st.write("각 연령대의 제품 별 구매량")
+        st.subheader("(2) 각 연령대의 제품별 판매량")
+        st.text("전체 기간 동안 각 연령대가 구매한 제품 별 수량을 나타냅니다.")
         df_sum_quantity = df.groupby(['ProductID', 'AgeCategory']).sum(numeric_only=True).reset_index()
         fig2_age = px.bar(df_sum_quantity, x='ProductID', y='Quantity', color='AgeCategory', barmode='group', color_continuous_scale='Agsunset', labels=label_list) # 제품 별 제품
         st.plotly_chart(fig2_age, use_container_width=True)
 
-    st.write("각 연령의 월 매출")
+    st.subheader("(3) 각 연령의 월 매출")
+    st.text("각 연령의 월 별 매출을 나타냅니다.")
     fig = px.bar(df, x='Month', y='TotalSales', color='AgeCategory',
                 labels=label_list, color_continuous_scale='Agsunset',
                 category_orders={ "Month": months },
@@ -90,18 +98,20 @@ elif option == '연령':
 else:
     col1, col2, = st.columns(2)
     with col1:
-        st.write("전체 매출 중 각 제품의 비율")
+        st.subheader("(1) 각 제품의 비율")
+        st.text("전체 기간 동안 각 제품이 매출액에서 차지하는 비율을 나타냅니다.")
         fig1_product = px.pie(df, values='UnitPrice', names='ProductID', labels=label_list) # 제품 별 매출
         fig1_product.update_traces(textposition='inside', textinfo='percent+label')
         st.plotly_chart(fig1_product, use_container_width=True)
 
-
     with col2:
-        st.write("각 제품의 전체 판매량")
+        st.subheader("(2) 각 제품의 전체 판매량")
+        st.text("전체 기간 동안 각 제품 별 전체 판매량을 나타냅니다.")
         fig2_product = px.bar(df, x='ProductID', y='Quantity', color='ProductID', barmode='group', labels=label_list) # 제품 별 제품
         st.plotly_chart(fig2_product, use_container_width=True)
     
-    st.write("각 제품의 월 매출")
+    st.subheader("(3) 각 제품의 월 매출")
+    st.text("각 제품의 월 별 매출을 나타냅니다.")
     fig = px.bar(df, x='Month', y='TotalSales', color='ProductID',
                 labels=label_list, category_orders={ "Month": months })
     st.plotly_chart(fig, use_container_width=True)
@@ -111,14 +121,21 @@ st.text("아래는 입력 데이터(Woori_Input.csv)입니다. 1000 X 8 크기�
 st.dataframe(df_og)
 
 st.header("3. 고객 생애 가치")
-vvvip_id = df_output[df_output['monetary_value'] == max(df_output['monetary_value'])].index[0]
+vvvip_id = df_output[df_output['LTV'] == max(df_output['LTV'])].index[0]
 vvvip = df_output[df_output.index==vvvip_id]
-st.text(f"""분석에 따르면, {vvvip_id}가 VVVIP입니다.
-- 평균 구매 금액은 {round(vvvip['monetary_value'].values[0], 2)}입니다.
-- {int(vvvip['T'].values[0])}일 동안 {int(vvvip['frequency'].values[0])}번 구매했습니다.
-- 최근 구매는 {int(vvvip['T'].values[0]- vvvip['recency'].values[0])}일 전에 구매했습니다.
-- 예상 구매 횟수는 {int(round(vvvip['predicted_puchases'].values[0], 0))}번 입니다.
-- 예상 평균 구매 금액은 {round(vvvip['predicted_monetary_value'].values[0], 4)}입니다.""")
+# st.text(f"분석에 따르면, {vvvip_id}가 VVVIP입니다.")
+st.markdown(f"분석에 따르면, <span style='color: orange;'><b>{vvvip_id}</b>가 <b>VVVIP</b>입니다.</span>", unsafe_allow_html=True)
+
+ans_customer_id = st.text_input("분석할 고객 ID를 입력해 주세요.")
+if (ans_customer_id != '') and (ans_customer_id in df_output.index):
+    cur_customer = df_output[df_output.index==ans_customer_id]
+    st.text(f"{ans_customer_id}의 분석 결과입니다.")
+    st.text(f"""
+    - 평균 구매 금액은 {round(cur_customer['monetary_value'].values[0], 2)}입니다.
+    - {int(cur_customer['T'].values[0])}일 동안 {int(cur_customer['frequency'].values[0])}번 구매했습니다.
+    - 최근 구매는 {int(cur_customer['T'].values[0]- cur_customer['recency'].values[0])}일 전에 구매했습니다.
+    - 예상 구매 횟수는 {int(round(cur_customer['predicted_puchases'].values[0], 0))}번 입니다.
+    - 예상 평균 구매 금액은 {round(cur_customer['predicted_monetary_value'].values[0], 2)}입니다.""")
 st.dataframe(df_output)
 
 st.header("4. 시계열")
