@@ -79,7 +79,7 @@ st.header(r" ")
 st.header(r" ")
 st.header(r" ")
 st.subheader("2-2. 출력 데이터(Woori_Output.csv)")
-st.markdown('''아래는 입력 데이터(Woori_Output.csv)에 대한 정보입니다.  각 고객의 생애 가치에 대한 데이터입니다.''')    
+st.markdown('''아래는 출력 데이터(Woori_Output.csv)에 대한 정보입니다.  각 고객의 생애 가치에 대한 데이터입니다.''')    
 table_col4 = ["CustomerID","frequency","recency","T","monetary_value","LTV","predicted_puchases","predicted_monetary_value"]
 table_col5 = ["String","Integer","Integer","Double","Double","Double","Double","Double"]
 table_col6 = ["고객ID","고객별 구매 일수","최초구매부터 마지막구매까지의 시간","최초구매부터 집계일까지의 시간","평균 구매 금액","고객 생애 가치","예상 구매 횟수","예상 평균 구매 금액"]
