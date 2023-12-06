@@ -44,9 +44,7 @@ CustomerSex_translation = dict(zip(CustomerSex, CustomerSex_korean))
 df['CustomerSex'] = df['CustomerSex'].map(CustomerSex_translation)
 
 st.header("1. EDA")
-option = st.selectbox(
-    'EDA에 활용될 Key를 선택해 주세요.',
-    ('성별', '연령', '제품'))
+option = st.selectbox("어떤 카테고리 별로 확인할 지 선택하세요.", ["제품", "연령", "성별"], key="eda")
 
 if option == '성별':
     col1, col2, = st.columns(2)
