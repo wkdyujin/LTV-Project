@@ -81,7 +81,7 @@ else:
     # Create a stacked bar graph using plotly.express
     fig = px.bar(df, x='Month', y='TotalSales', color='ProductID',
                 title='A, B, C Sales by Month',
-                labels={'TotalSales': 'Sales'},
+                labels={'TotalSales': 'Sales'}
                 )
     st.plotly_chart(fig, use_container_width=True)
 
