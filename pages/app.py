@@ -31,8 +31,8 @@ label_list = { "CustomerSex": "성별",  "Month": "월", "TotalSales": "매출�
 
 months_korean = ["1월", "2월", "3월", "4월", "5월", "6월",
                   "7월", "8월", "9월", "10월", "11월", "12월"]
-month_translation = dict(zip(months, months_korean))
-df['Month'] = df['Month'].map(month_translation)
+month_translation = dict(zip(months, months_korean)) # 각 영어 월 이름에 대한 한국어 월 이름을 매핑한 딕셔너리 생성
+df['Month'] = df['Month'].map(month_translation) # 'Month' 열의 값들을 해당 딕셔너리를 사용하여 한국어로 변환
 months = ["1월", "2월", "3월", "4월", "5월", "6월",
                   "7월", "8월", "9월", "10월", "11월", "12월"]
 
