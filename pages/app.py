@@ -51,20 +51,20 @@ option = st.selectbox(
 if option == '성별':
     col1, col2, = st.columns(2)
     with col1:
-        st.subheader("(1) 각 성별의 비율")
+        st.subheader("1-1. 각 성별의 비율")
         st.text("전체 기간 동안 각 성별이 매출액에서 차지하는 비율을 나타냅니다.")
         fig1_sex = px.pie(df, values='UnitPrice', names='CustomerSex')
         fig1_sex.update_traces(textposition='inside', textinfo='percent+label')
         st.plotly_chart(fig1_sex, use_container_width=True)
 
     with col2:
-        st.subheader("(2) 각 성별의 제품별 구매량")
+        st.subheader("1-2. 각 성별의 제품별 구매량")
         st.text("전체 기간 동안 각 성별이 구매한 제품 별 수량을 나타냅니다.")
         fig2_sex = px.bar(df, x='ProductID', y='Quantity', color='CustomerSex', barmode='group',
                           labels=label_list, category_orders={ "ProductID": ["A", "B", "C"] },)
         st.plotly_chart(fig2_sex, use_container_width=True)
 
-    st.subheader("(3) 각 성별의 월 매출")
+    st.subheader("1-3. 각 성별의 월 매출")
     st.text("각 성별의 월 별 매출을 나타냅니다.")
     fig3_sex = px.bar(df, x='Month', y='TotalSales', color='CustomerSex', barmode='group',
                           labels=label_list, category_orders={ "Month": months },)
@@ -74,20 +74,20 @@ elif option == '연령':
     # 전체 매출 , 제품별 구매량
     col1, col2, = st.columns(2)
     with col1:
-        st.subheader("(1) 각 연령대의 비율")
+        st.subheader("1-1. 각 연령대의 비율")
         st.text("전체 기간 동안 각 연령대가 매출액에서 차지하는 비율을 나타냅니다.")
         fig1_age = px.pie(df, values='UnitPrice', names='AgeCategory') # 나이 별 매출
         fig1_age.update_traces(textposition='inside', textinfo='percent+label')
         st.plotly_chart(fig1_age, use_container_width=True)
 
     with col2:
-        st.subheader("(2) 각 연령대의 제품별 판매량")
+        st.subheader("1-2. 각 연령대의 제품별 판매량")
         st.text("전체 기간 동안 각 연령대가 구매한 제품 별 수량을 나타냅니다.")
         df_sum_quantity = df.groupby(['ProductID', 'AgeCategory']).sum(numeric_only=True).reset_index()
         fig2_age = px.bar(df_sum_quantity, x='ProductID', y='Quantity', color='AgeCategory', barmode='group', color_continuous_scale='Agsunset') # 제품 별 제품
         st.plotly_chart(fig2_age, use_container_width=True)
 
-    st.subheader("(3) 각 연령의 월 매출")
+    st.subheader("1-3. 각 연령의 월 매출")
     st.text("각 연령의 월 별 매출을 나타냅니다.")
     fig = px.bar(df, x='Month', y='TotalSales', color='AgeCategory',
                 labels={'TotalSales': 'Sales'},
@@ -98,19 +98,19 @@ elif option == '연령':
 else:
     col1, col2, = st.columns(2)
     with col1:
-        st.subheader("(1) 각 제품의 비율")
+        st.subheader("1-1. 각 제품의 비율")
         st.text("전체 기간 동안 각 제품이 매출액에서 차지하는 비율을 나타냅니다.")
         fig1_product = px.pie(df, values='UnitPrice', names='ProductID', labels=label_list) # 제품 별 매출
         fig1_product.update_traces(textposition='inside', textinfo='percent+label')
         st.plotly_chart(fig1_product, use_container_width=True)
 
     with col2:
-        st.subheader("(2) 각 제품의 전체 판매량")
+        st.subheader("1-2. 각 제품의 전체 판매량")
         st.text("전체 기간 동안 각 제품 별 전체 판매량을 나타냅니다.")
         fig2_product = px.bar(df, x='ProductID', y='Quantity', color='ProductID', barmode='group', labels=label_list) # 제품 별 제품
         st.plotly_chart(fig2_product, use_container_width=True)
     
-    st.subheader("(3) 각 제품의 월 매출")
+    st.subheader("1-3. 각 제품의 월 매출")
     st.text("각 제품의 월 별 매출을 나타냅니다.")
     fig = px.bar(df, x='Month', y='TotalSales', color='ProductID',
                 labels={'TotalSales': 'Sales'}
