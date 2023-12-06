@@ -22,6 +22,24 @@ df['AgeCategory'] = df['CustomerAge'].apply(age_categorize).astype('category') #
 df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
 df['Month'] = df['InvoiceDate'].dt.month_name()
 df['TotalSales'] = df['Quantity'] * df['UnitPrice']
+months = ["January", "February", "March", "April", "May", "June",\
+           "July", "August", "September", "October", "November", "December"]
+label_list = { "CustomerSex": "성별",  "Month": "월", "TotalSales": "매출액", \
+              "ProductID": "제품명", "Quantity": "판매량", "AgeCategory": "연령대"}
+
+months_korean = ["1월", "2월", "3월", "4월", "5월", "6월",
+                  "7월", "8월", "9월", "10월", "11월", "12월"]
+month_translation = dict(zip(months, months_korean))
+df['Month'] = df['Month'].map(month_translation)
+months = ["1월", "2월", "3월", "4월", "5월", "6월",
+                  "7월", "8월", "9월", "10월", "11월", "12월"]
+
+AgeCategory = ['10', '20', '30', '40', '50', '60']
+
+CustomerSex = ['Male', 'Female']
+CustomerSex_korean = ['남성', '여성']
+CustomerSex_translation = dict(zip(CustomerSex, CustomerSex_korean))
+df['CustomerSex'] = df['CustomerSex'].map(CustomerSex_translation)
 
 st.header("1. EDA")
 option = st.selectbox(
@@ -175,7 +193,7 @@ def sex_date_groups(input_data: pd.DataFrame, sex: str):
 
 # 2-1) 성별 VAR 시계열 예측
 def Sex_VAR_forecast(TimeSeries_df: pd.DataFrame):
-    var_data = TimeSeries_df[['Female', 'Male']]
+    var_data = TimeSeries_df[['여성', '남성']]
     # VAR 모델 생성
     model_var = VAR(var_data)
     # 모델 훈련
@@ -310,9 +328,9 @@ if select == "연령":
 # 성별 시계열 예측 그래프
 
 if select == "성별" :
-    Female_left_join, Female_time = sex_date_groups(df, "Female")
-    Male_left_join, Male_time = sex_date_groups(df, "Male")
-
+    Female_left_join, Female_time = sex_date_groups(df, "여성")
+    Male_left_join, Male_time = sex_date_groups(df, "남성")
+    
     # Sex_TimeSeries_data
     # Left join
     Sex_TimeSeries_data = pd.merge(Female_time, Male_time, on = "InvoiceDate", how = 'left')
@@ -325,11 +343,12 @@ if select == "성별" :
     Sex_TimeSeries_data.index = pd.DatetimeIndex(index_ex)
     Sex_TimeSeries_data = Sex_TimeSeries_data.drop("InvoiceDate", axis = 1)
 
+
     # 그래프 그리기
     sex_var_data, sex_forecast_var = Sex_VAR_forecast(Sex_TimeSeries_data)
 
     fig, ax = plt.subplots(figsize=(10, 6))
-    for i, sex in enumerate(['Female', 'Male']):
+    for i, sex in enumerate(['여성', '남성']):
         ax.plot(Sex_TimeSeries_data.index, sex_var_data[sex], label=f'{sex} Actual', linestyle='dashed')
         ax.plot(pd.date_range(start=Sex_TimeSeries_data.index[-1], periods=31, freq='D')[1:], sex_forecast_var[:, i], label=f'{sex} Forecast')
 
