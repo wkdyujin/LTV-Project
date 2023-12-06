@@ -39,9 +39,7 @@ months = ["1월", "2월", "3월", "4월", "5월", "6월",
                   "7월", "8월", "9월", "10월", "11월", "12월"]
 
 st.header("1. EDA")
-option = st.selectbox(
-    'EDA에 활용될 Key를 선택해 주세요.',
-    ('성별', '연령', '제품'))
+option = st.selectbox("어떤 카테고리 별로 확인할 지 선택하세요.", ["제품", "연령", "성별"], key="eda")
 
 if option == '성별':
     col1, col2, = st.columns(2)
@@ -160,7 +158,7 @@ def VAR_forecast(TimeSeries_df: pd.DataFrame):
 
 
 # 회귀 모형 만들기 : 예측 - x축 : month, y축은 매출액
-select = st.selectbox("어떤 카테고리 별로 확인할 지 선택하세요.", ["제품", "연령", "성별"])
+select = st.selectbox("어떤 카테고리 별로 확인할 지 선택하세요.", ["제품", "연령", "성별"], key="time_series")
 st.subheader(f"{select}별 매출액 예상 그래프")
 
 if select == "제품": 
