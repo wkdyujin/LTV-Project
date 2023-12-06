@@ -131,15 +131,18 @@ vvvip = df_output[df_output.index==vvvip_id]
 st.markdown(f"분석에 따르면, <span style='color: orange;'><b>{vvvip_id}</b>가 <b>VVVIP</b>입니다.</span>", unsafe_allow_html=True)
 
 ans_customer_id = st.text_input("분석할 고객 ID를 입력해 주세요.")
-if (ans_customer_id != '') and (ans_customer_id in df_output.index):
-    cur_customer = df_output[df_output.index==ans_customer_id]
-    st.text(f"{ans_customer_id}의 분석 결과입니다.")
-    st.text(f"""
-    - 평균 구매 금액은 {round(cur_customer['monetary_value'].values[0], 2)}입니다.
-    - {int(cur_customer['T'].values[0])}일 동안 {int(cur_customer['frequency'].values[0])}번 구매했습니다.
-    - 최근 구매는 {int(cur_customer['T'].values[0]- cur_customer['recency'].values[0])}일 전에 구매했습니다.
-    - 예상 구매 횟수는 {int(round(cur_customer['predicted_puchases'].values[0], 0))}번 입니다.
-    - 예상 평균 구매 금액은 {round(cur_customer['predicted_monetary_value'].values[0], 2)}입니다.""")
+if (ans_customer_id != ''):
+    if (ans_customer_id not in df_output.index):
+        st.text("해당 ID는 존재하지 않습니다.")
+    else:
+        cur_customer = df_output[df_output.index==ans_customer_id]
+        st.text(f"{ans_customer_id}의 분석 결과입니다.")
+        st.text(f"""
+        - 평균 구매 금액은 {round(cur_customer['monetary_value'].values[0], 2)}입니다.
+        - {int(cur_customer['T'].values[0])}일 동안 {int(cur_customer['frequency'].values[0])}번 구매했습니다.
+        - 최근 구매는 {int(cur_customer['T'].values[0]- cur_customer['recency'].values[0])}일 전에 구매했습니다.
+        - 예상 구매 횟수는 {int(round(cur_customer['predicted_puchases'].values[0], 0))}번 입니다.
+        - 예상 평균 구매 금액은 {round(cur_customer['predicted_monetary_value'].values[0], 2)}입니다.""")
 st.dataframe(df_output)
 
 st.header("4. TimeSeries")

@@ -22,6 +22,8 @@ st.markdown(version_info, unsafe_allow_html=True)
 # st.image(image_path, caption='Your Image Caption', use_column_width=True)
 st.image("https://i.imgur.com/mCQTego.png")
 
+st.header("0. 개요")
+st.image("https://i.imgur.com/hytGGJj.png")
 
 st.header("1. 분석")
 
