@@ -92,7 +92,7 @@ st.table(data=table_info2)
 dwnbtn_output = st.download_button(
         label="출력 데이터 다운로드",
         data=df_Output.to_csv(),
-        file_name='Woori_Input.csv',
+        file_name='Woori_Output.csv',
         key='output',
         mime='text/csv'
         )
