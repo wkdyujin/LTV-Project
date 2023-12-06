@@ -3,7 +3,11 @@ import pandas as pd
 import plotly.figure_factory as ff
 import plotly.express as px
 from io import BytesIO
+from functools import reduce
+import matplotlib.pyplot as plt
 
+from statsmodels.tsa.api import VAR
+from statsmodels.tools.eval_measures import rmse
 
 df = pd.read_csv('./data/sample2.csv', index_col = 0)
 df_og = df.copy()
