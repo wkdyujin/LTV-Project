@@ -360,13 +360,15 @@ if select == "성별" :
     # 그래프 그리기
     sex_var_data, sex_forecast_var = Sex_VAR_forecast(Sex_TimeSeries_data)
 
+    sex_english = {"여성": "Female", "남성": "Male"}
+
     fig, ax = plt.subplots(figsize=(10, 6))
     for i, sex in enumerate(['여성', '남성']):
-        ax.plot(Sex_TimeSeries_data.index, sex_var_data[sex], label=f'{sex} Actual', linestyle='dashed')
-        ax.plot(pd.date_range(start=Sex_TimeSeries_data.index[-1], periods=31, freq='D')[1:], sex_forecast_var[:, i], label=f'{sex} Forecast')
+        ax.plot(Sex_TimeSeries_data.index, sex_var_data[sex], label=f'{sex_english[sex]} Actual', linestyle='dashed')
+        ax.plot(pd.date_range(start=Sex_TimeSeries_data.index[-1], periods=31, freq='D')[1:], sex_forecast_var[:, i], label=f'{sex_english[sex]} Forecast')
 
     ax.set_title('VAR Forecast for Sex')
     ax.set_xlabel('Date')
     ax.set_ylabel('Daily Sales')
-    ax.legend()
+    ax.legend(loc = 'upper right')
     st.pyplot(fig)
