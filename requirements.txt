@@ -5,3 +5,4 @@ XlsxWriter
 beautifulsoup4
 openpyxl
 matplotlib
+statsmodels
