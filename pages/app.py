@@ -44,7 +44,9 @@ CustomerSex_translation = dict(zip(CustomerSex, CustomerSex_korean))
 df['CustomerSex'] = df['CustomerSex'].map(CustomerSex_translation)
 
 st.header("1. EDA")
-option = st.selectbox("어떤 카테고리 별로 확인할 지 선택하세요.", ["제품", "연령", "성별"], key="eda")
+option = st.selectbox(
+    'EDA에 활용될 Key를 선택해 주세요.',
+    ('성별', '연령', '제품'))
 
 if option == '성별':
     col1, col2, = st.columns(2)
@@ -53,7 +55,6 @@ if option == '성별':
         st.text("전체 기간 동안 각 성별이 매출액에서 차지하는 비율을 나타냅니다.")
         fig1_sex = px.pie(df, values='UnitPrice', names='CustomerSex')
         fig1_sex.update_traces(textposition='inside', textinfo='percent+label')
-
         st.plotly_chart(fig1_sex, use_container_width=True)
 
     with col2:
@@ -72,7 +73,6 @@ if option == '성별':
 elif option == '연령':
     # 전체 매출 , 제품별 구매량
     col1, col2, = st.columns(2)
-    df = df.sort_values(by='AgeCategory')
     with col1:
         st.subheader("(1) 각 연령대의 비율")
         st.text("전체 기간 동안 각 연령대가 매출액에서 차지하는 비율을 나타냅니다.")
@@ -84,14 +84,14 @@ elif option == '연령':
         st.subheader("(2) 각 연령대의 제품별 판매량")
         st.text("전체 기간 동안 각 연령대가 구매한 제품 별 수량을 나타냅니다.")
         df_sum_quantity = df.groupby(['ProductID', 'AgeCategory']).sum(numeric_only=True).reset_index()
-        fig2_age = px.bar(df_sum_quantity, x='ProductID', y='Quantity', color='AgeCategory', barmode='group', color_continuous_scale='Agsunset', labels=label_list) # 제품 별 제품
+        fig2_age = px.bar(df_sum_quantity, x='ProductID', y='Quantity', color='AgeCategory', barmode='group', color_continuous_scale='Agsunset') # 제품 별 제품
         st.plotly_chart(fig2_age, use_container_width=True)
 
     st.subheader("(3) 각 연령의 월 매출")
     st.text("각 연령의 월 별 매출을 나타냅니다.")
     fig = px.bar(df, x='Month', y='TotalSales', color='AgeCategory',
-                labels=label_list, color_continuous_scale='Agsunset',
-                category_orders={ "Month": months },
+                labels={'TotalSales': 'Sales'},
+                color_continuous_scale='Agsunset',
                 )
     st.plotly_chart(fig, use_container_width=True)
     
@@ -113,11 +113,15 @@ else:
     st.subheader("(3) 각 제품의 월 매출")
     st.text("각 제품의 월 별 매출을 나타냅니다.")
     fig = px.bar(df, x='Month', y='TotalSales', color='ProductID',
-                labels=label_list, category_orders={ "Month": months })
+                labels={'TotalSales': 'Sales'}
+                )
     st.plotly_chart(fig, use_container_width=True)
 
-st.header("2. 입력 데이터")
-st.text("아래는 입력 데이터(Woori_Input.csv)입니다. 1000 X 8 크기로 구성되어 있습니다.")
+st.header("2. sheet")
+input_excel_data = BytesIO()      
+df_og.to_excel(input_excel_data)
+st.download_button("엑셀 다운로드", 
+        input_excel_data, file_name='input.xlsx')
 st.dataframe(df_og)
 
 st.header("3. 고객 생애 가치")
@@ -138,9 +142,10 @@ if (ans_customer_id != '') and (ans_customer_id in df_output.index):
     - 예상 평균 구매 금액은 {round(cur_customer['predicted_monetary_value'].values[0], 2)}입니다.""")
 st.dataframe(df_output)
 
-st.header("4. 시계열")
+st.header("4. TimeSeries")
+# st.write(df)
 
-# 데이터프레임 생성
+# 1) 제품별 데이터프레임 생성
 def date_groups(input_data: pd.DataFrame, product: str, unitprice: int):
     # [input_data에 'data'가 들어올 예정]
     
@@ -163,7 +168,7 @@ def date_groups(input_data: pd.DataFrame, product: str, unitprice: int):
     return product_date_group1
 
 
-# VAR 시계열 예측 함수
+# 1-1) 제품별 VAR 시계열 예측 함수
 def VAR_forecast(TimeSeries_df: pd.DataFrame):
     var_data = TimeSeries_df[['A', 'B', 'C']]
 
@@ -178,12 +183,96 @@ def VAR_forecast(TimeSeries_df: pd.DataFrame):
     return var_data, forecast_var
 
 
-# 회귀 모형 만들기 : 예측 - x축 : month, y축은 매출액
-select = st.selectbox("어떤 카테고리 별로 확인할 지 선택하세요.", ["제품", "연령", "성별"], key="time_series")
+# 2) 성별 데이터프레임 생성
+# 시계열 데이터 : 성별 DailySales 구하기
+def sex_date_groups(input_data: pd.DataFrame, sex: str):
+    # [input_data에 'data'가 들어올 예정]
+    
+    # InvoiceDate 변수 datetime 으로 바꾸기
+    input_data["InvoiceDate"] = pd.to_datetime(input_data["InvoiceDate"]).dt.date
+    
+    # Product별 데이터프레임 각각 생성
+    product_data = input_data.loc[input_data["CustomerSex"]== sex, :]
+    product_data.sort_values("InvoiceDate")
+
+    # Date를 기준으로 groupby -> 일별 Quantity (DailyQuantity) 생성
+    product_date_group = product_data.groupby(["InvoiceDate"], as_index = False)["Quantity"].sum()
+    product_date_group.columns = ["InvoiceDate", "DailyQuantity"]
+
+    # Left Join
+    sex_left_join = pd.merge(product_date_group, product_data, left_on ="InvoiceDate", right_on = "InvoiceDate", how = "left")
+    sex_left_join["DailySales"] = sex_left_join["DailyQuantity"]*sex_left_join["UnitPrice"]
+
+    # for_timeseries : "InvoiceDate"와 "DailySales"만 있는 데이터프레임
+    for_timeseries = sex_left_join.loc[:,["InvoiceDate", "DailySales"]]
+    for_timeseries.rename(columns = {"DailySales": sex}, inplace = True)
+
+    return sex_left_join, for_timeseries
+
+# 2-1) 성별 VAR 시계열 예측
+def Sex_VAR_forecast(TimeSeries_df: pd.DataFrame):
+    var_data = TimeSeries_df[['여성', '남성']]
+    # VAR 모델 생성
+    model_var = VAR(var_data)
+    # 모델 훈련
+    model_var_fitted = model_var.fit()
+    # 다음 30일 예측
+    forecast_var = model_var_fitted.forecast(model_var_fitted.endog, steps=30)
+    return var_data, forecast_var
+
+
+# 3) 연령별 데이터 프레임 생성
+def Age_date_groups(input_data: pd.DataFrame, ageline):
+    # [input_data에 'data'가 들어올 예정]
+
+    # InvoiceDate 변수 datetime 으로 바꾸기
+    input_data["InvoiceDate"] = pd.to_datetime(input_data["InvoiceDate"]).dt.date
+    
+    # AgeLine 파생변수 생성 : 연령대
+    input_data["AgeLine"] = (input_data["CustomerAge"]/10).astype(int) * 10
+    
+    # Product별 데이터프레임 각각 생성
+    product_data = input_data.loc[input_data["CustomerAge"]== int(ageline), :]
+    product_data.sort_values("InvoiceDate")
+
+    # Date를 기준으로 groupby -> 일별 Quantity (DailyQuantity) 생성
+    product_date_group = product_data.groupby(["InvoiceDate"], as_index = False)["Quantity"].sum()
+    product_date_group.columns = ["InvoiceDate", "DailyQuantity"]
+
+    # Left Join
+    age_left_join = pd.merge(product_date_group, product_data, left_on ="InvoiceDate", right_on = "InvoiceDate", how = "left")
+    age_left_join["DailySales"] = age_left_join["DailyQuantity"]*age_left_join["UnitPrice"]
+
+    # for_timeseries : "InvoiceDate"와 "DailySales"만 있는 데이터프레임
+    for_timeseries = age_left_join.loc[:,["InvoiceDate", "DailySales"]]
+    for_timeseries.rename(columns = {"DailySales": ageline}, inplace = True)
+
+    # product_date_group1 = product_date_group.loc[:,["InvoiceDate", "DailySales"]]
+    # product_date_group1.rename(columns = {"DailySales": product}, inplace = True)
+
+    return age_left_join, for_timeseries
+
+# 3-1) 연령별 VAR 시계열 예측
+def Age_VAR_forecast(TimeSeries_df: pd.DataFrame):
+    var_data = TimeSeries_df[['10', '20', '30', '40', '50']]
+
+    # VAR 모델 생성
+    model_var = VAR(var_data)
+
+    # 모델 훈련
+    model_var_fitted = model_var.fit()
+
+    # 다음 30일 예측
+    forecast_var = model_var_fitted.forecast(model_var_fitted.endog, steps=30)
+    return var_data, forecast_var
+
+
+# UI : 시계열 예측 그래프 출력
+select = st.selectbox("어떤 카테고리 별로 확인할 지 선택하세요.", ["제품", "연령", "성별"])
 st.subheader(f"{select}별 매출액 예상 그래프")
 
+# 제품별 시계열 예측 그래프
 if select == "제품": 
-    # 제품별 시계열 그래프
     A_data = date_groups(df, "A", 50)
     B_data = date_groups(df, "B", 100)
     C_data = date_groups(df, "C", 30)
@@ -211,6 +300,77 @@ if select == "제품":
         ax.plot(pd.date_range(start=TimeSeries_data.index[-1], periods=31, freq='D')[1:], forecast_var[:, i], label=f'{product} Forecast')
 
     ax.set_title('VAR Forecast for Products A, B, C')
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Daily Sales')
+    ax.legend()
+    st.pyplot(fig)
+
+# 연령별 시계열 예측 그래프
+if select == "연령":
+    teen_left_join, teen_time = Age_date_groups(df, '10')
+    twen_left_join, twen_time = Age_date_groups(df, '20')
+    thir_left_join, thir_time = Age_date_groups(df, '30')
+    four_left_join, four_time = Age_date_groups(df, '40')
+    fith_left_join, fith_time = Age_date_groups(df, '50')
+
+    # Age_TimeSeries_data
+    # Outer join
+    Age_TimeSeries_data = pd.concat([teen_time, twen_time, thir_time, four_time, fith_time]).sort_values("InvoiceDate")
+
+    # Nan -> 0 : 변수가 일별 매출액(DailySales)이기 때문에 InvoiceDate가 없다면(NaN), 해당 날짜에는 해당 제품의 수요가 없었다는 것이므로 일별 매출액을 0원으로 변경해도 된다고 판단.
+    Age_TimeSeries_data = Age_TimeSeries_data.fillna(0)
+
+    # 인덱스 설정
+    index_ex = list(Age_TimeSeries_data.InvoiceDate)
+    Age_TimeSeries_data.index = pd.DatetimeIndex(index_ex)
+    Age_TimeSeries_data = Age_TimeSeries_data.drop("InvoiceDate", axis = 1)
+    # st.write(Age_TimeSeries_data)
+
+    # 그래프 그리기
+    age_var_data, age_forecast_var = Age_VAR_forecast(Age_TimeSeries_data)
+    # st.write(Age_TimeSeries_data[:1])
+    # st.write(age_var_data)
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    for i, age in enumerate(['10', '20', '30', '40', '50']):
+        ax.plot(Age_TimeSeries_data.index, age_var_data[age], label=f'{age} Actual', linestyle='dashed')
+        ax.plot(pd.date_range(start = Age_TimeSeries_data.index[-1], periods=31, freq='D')[1:], age_forecast_var[:, i], label=f'{age} Forecast')
+
+    ax.set_title('VAR Forecast for Age')
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Daily Sales')
+    ax.legend()
+    st.pyplot(fig)
+
+
+# 성별 시계열 예측 그래프
+
+if select == "성별" :
+    Female_left_join, Female_time = sex_date_groups(df, "여성")
+    Male_left_join, Male_time = sex_date_groups(df, "남성")
+    
+    # Sex_TimeSeries_data
+    # Left join
+    Sex_TimeSeries_data = pd.merge(Female_time, Male_time, on = "InvoiceDate", how = 'left')
+
+    # Nan -> 0 : 변수가 일별 매출액(DailySales)이기 때문에 InvoiceDate가 없다면(NaN), 해당 날짜에는 해당 제품의 수요가 없었다는 것이므로 일별 매출액을 0원으로 변경해도 된다고 판단.
+    Sex_TimeSeries_data = Sex_TimeSeries_data.fillna(0)
+
+    # 인덱스 설정
+    index_ex = list(Sex_TimeSeries_data.InvoiceDate)
+    Sex_TimeSeries_data.index = pd.DatetimeIndex(index_ex)
+    Sex_TimeSeries_data = Sex_TimeSeries_data.drop("InvoiceDate", axis = 1)
+
+
+    # 그래프 그리기
+    sex_var_data, sex_forecast_var = Sex_VAR_forecast(Sex_TimeSeries_data)
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    for i, sex in enumerate(['여성', '남성']):
+        ax.plot(Sex_TimeSeries_data.index, sex_var_data[sex], label=f'{sex} Actual', linestyle='dashed')
+        ax.plot(pd.date_range(start=Sex_TimeSeries_data.index[-1], periods=31, freq='D')[1:], sex_forecast_var[:, i], label=f'{sex} Forecast')
+
+    ax.set_title('VAR Forecast for Sex')
     ax.set_xlabel('Date')
     ax.set_ylabel('Daily Sales')
     ax.legend()
