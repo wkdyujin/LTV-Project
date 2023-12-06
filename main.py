@@ -23,10 +23,16 @@ st.markdown(version_info, unsafe_allow_html=True)
 # 이미지를 화면에 표시
 # st.image(image_path, caption='Your Image Caption', use_column_width=True)
 st.image("https://i.imgur.com/mCQTego.png")
-
+st.header(r" ")
+st.header(r" ")
+st.header(r" ")
+st.header(r" ")
 st.header("0. 개요")
 st.image("https://i.imgur.com/hytGGJj.png")
-
+st.header(r" ")
+st.header(r" ")
+st.header(r" ")
+st.header(r" ")
 st.header("1. 분석")
 
 st.subheader("1-1. 탐색적 데이터 분석(EDA)")
@@ -64,7 +70,10 @@ dwnbtn_input = st.download_button(
         key='input',
         mime='text/csv'
         )
-
+st.header(r" ")
+st.header(r" ")
+st.header(r" ")
+st.header(r" ")
 st.subheader("2-2. 출력 데이터(Woori_Output.csv)")
 st.markdown('''아래는 입력 데이터(Woori_Output.csv)에 대한 정보입니다.  각 고객의 생애 가치에 대한 데이터입니다.''')    
 table_col4 = ["CustomerID","frequency","recency","T","monetary_value","LTV","predicted_puchases","predicted_monetary_value"]
