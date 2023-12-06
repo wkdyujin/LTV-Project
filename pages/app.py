@@ -102,4 +102,81 @@ st.download_button("엑셀 다운로드",
         output_excel_data, file_name='output.xlsx')
 st.dataframe(df_output)
 
-st.header("4. Regression")
+st.header("4. TimeSeries")
+# st.write(df)
+
+# 데이터프레임 생성
+def date_groups(input_data: pd.DataFrame, product: str, unitprice: int):
+    # [input_data에 'data'가 들어올 예정]
+    
+    # InvoiceDate 변수 datetime 으로 바꾸기
+    input_data["InvoiceDate"] = pd.to_datetime(input_data["InvoiceDate"]).dt.date
+
+    # Product별 데이터프레임 각각 생성
+    product_data = input_data.loc[input_data["ProductID"]==product, :]
+    product_data.sort_values("InvoiceDate")
+
+    # Date를 기준으로 groupby -> 일별 Quantity (DailyQuantity) 생성
+    product_date_group = product_data.groupby("InvoiceDate", as_index = False)["Quantity"].sum()
+    product_date_group.columns = ["InvoiceDate", "DailyQuantity"]
+    product_date_group["DailySales"] = product_date_group["DailyQuantity"] * unitprice
+
+    # product_date_group1 : "InvoiceDate"와 "DailySales"만 있는 데이터프레임
+    product_date_group1 = product_date_group.loc[:,["InvoiceDate", "DailySales"]]
+    product_date_group1.rename(columns = {"DailySales": product}, inplace = True)
+
+    return product_date_group1
+
+
+# VAR 시계열 예측 함수
+def VAR_forecast(TimeSeries_df: pd.DataFrame):
+    var_data = TimeSeries_df[['A', 'B', 'C']]
+
+    # VAR 모델 생성
+    model_var = VAR(var_data)
+
+    # 모델 훈련
+    model_var_fitted = model_var.fit()
+
+    # 다음 30일 예측
+    forecast_var = model_var_fitted.forecast(model_var_fitted.endog, steps=30)
+    return var_data, forecast_var
+
+
+# 회귀 모형 만들기 : 예측 - x축 : month, y축은 매출액
+select = st.selectbox("어떤 카테고리 별로 확인할 지 선택하세요.", ["제품", "연령", "성별"])
+st.subheader(f"{select}별 매출액 예상 그래프")
+
+if select == "제품": 
+    # 제품별 시계열 그래프
+    A_data = date_groups(df, "A", 50)
+    B_data = date_groups(df, "B", 100)
+    C_data = date_groups(df, "C", 30)
+
+    # 시계열 데이터 분석을 위한 데이터 프레임 생성
+    # Left join
+    TimeSeries_data = reduce(lambda x ,y: pd.merge(x, y, on = "InvoiceDate", how = 'left'), [A_data, B_data, C_data])
+
+    # Nan -> 0 : 변수가 일별 매출액(DailySales)이기 때문에 InvoiceDate가 없다면(NaN), 해당 날짜에는 해당 제품의 수요가 없었다는 것이므로 일별 매출액을 0원으로 변경해도 된다고 판단.
+    TimeSeries_data = TimeSeries_data.fillna(0)
+
+    # 인덱스 설정
+    index_ex = list(TimeSeries_data.InvoiceDate)
+    TimeSeries_data.index = pd.DatetimeIndex(index_ex)
+    TimeSeries_data = TimeSeries_data.drop("InvoiceDate", axis = 1)
+
+    #st.write(TimeSeries_data)
+
+    # 그래프 그리기
+    var_data, forecast_var = VAR_forecast(TimeSeries_data)
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    for i, product in enumerate(['A', 'B', 'C']):
+        ax.plot(TimeSeries_data.index, var_data[product], label=f'{product} Actual', linestyle='dashed')
+        ax.plot(pd.date_range(start=TimeSeries_data.index[-1], periods=31, freq='D')[1:], forecast_var[:, i], label=f'{product} Forecast')
+
+    ax.set_title('VAR Forecast for Products A, B, C')
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Daily Sales')
+    ax.legend()
+    st.pyplot(fig)
