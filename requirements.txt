@@ -4,11 +4,7 @@ plotly
 XlsxWriter
 beautifulsoup4
 openpyxl
-<<<<<<< HEAD
 plotly
 functools
-matplotlib.pyplot
-=======
 matplotlib
->>>>>>> 106d9e3b04bfdb7bd1c4c6e4d33cfaa88bae6b95
 statsmodels
