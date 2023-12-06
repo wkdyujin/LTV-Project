@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 
+st.set_page_config(layout="wide")
+
 try :
     df_Input = pd.read_csv('./data/sample2.csv')
 except :
