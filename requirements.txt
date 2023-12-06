@@ -4,3 +4,7 @@ plotly
 XlsxWriter
 beautifulsoup4
 openpyxl
+plotly
+functools
+matplotlib.pyplot
+statsmodels
