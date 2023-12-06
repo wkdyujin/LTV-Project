@@ -29,13 +29,13 @@ label_list = { "CustomerSex": "성별",  "Month": "월", "TotalSales": "매출�
 
 months_korean = ["1월", "2월", "3월", "4월", "5월", "6월",
                   "7월", "8월", "9월", "10월", "11월", "12월"]
-
 month_translation = dict(zip(months, months_korean))
-
 df['Month'] = df['Month'].map(month_translation)
-
 months = ["1월", "2월", "3월", "4월", "5월", "6월",
                   "7월", "8월", "9월", "10월", "11월", "12월"]
+
+AgeCategory = ['10', '20', '30', '40', '50', '60']
+
 CustomerSex = ['Male', 'Female']
 CustomerSex_korean = ['남성', '여성']
 CustomerSex_translation = dict(zip(CustomerSex, CustomerSex_korean))
@@ -69,6 +69,7 @@ if option == '성별':
 elif option == '연령':
     # 전체 매출 , 제품별 구매량
     col1, col2, = st.columns(2)
+    df = df.sort_values(by='AgeCategory')
     with col1:
         st.write("전체 매출 중 각 연령대의 비율")
         fig1_age = px.pie(df, values='UnitPrice', names='AgeCategory') # 나이 별 매출
